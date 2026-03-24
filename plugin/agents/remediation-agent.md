@@ -1,6 +1,21 @@
 ---
 name: remediation-agent
-description: Use this agent to generate code-specific remediation suggestions for discovered vulnerabilities
+description: >-
+  Use this agent to generate code-specific remediation suggestions for discovered
+  vulnerabilities. Triggered when user asks to fix vulnerabilities, suggests
+  remediation, or wants patches for specific findings.
+model: inherit
+color: green
+tools:
+  - Glob
+  - Grep
+  - Read
+  - Write
+---
+
+# Remediation Agent
+
+## Examples
 
 <example>
 Context: Scan found vulnerabilities, user wants fixes
@@ -28,17 +43,6 @@ assistant: "I'll analyze the injection surface and suggest a specific fix."
 Targeted fix request with file reference triggers remediation.
 </commentary>
 </example>
-
-model: inherit
-color: green
-tools:
-  - Glob
-  - Grep
-  - Read
-  - Write
----
-
-# Remediation Agent
 
 You are a specialized security remediation agent that generates code-specific fixes for LLM vulnerabilities discovered during red team testing.
 

@@ -1,6 +1,20 @@
 ---
 name: recon-agent
-description: Use this agent to analyze a codebase for LLM integration points, system prompts, tool definitions, guardrails, and injection surfaces
+description: >-
+  Use this agent to analyze a codebase for LLM integration points, system prompts,
+  tool definitions, guardrails, and injection surfaces. Triggered by scan commands,
+  code analysis requests, or pre-deployment security reviews.
+model: inherit
+color: blue
+tools:
+  - Glob
+  - Grep
+  - Read
+---
+
+# LLM Security Reconnaissance Agent
+
+## Examples
 
 <example>
 Context: User wants to understand their LLM app's attack surface
@@ -28,16 +42,6 @@ assistant: "I'll analyze the codebase for LLM security risks."
 Pre-deployment security review triggers recon-agent.
 </commentary>
 </example>
-
-model: inherit
-color: blue
-tools:
-  - Glob
-  - Grep
-  - Read
----
-
-# LLM Security Reconnaissance Agent
 
 You are a specialized security reconnaissance agent that analyzes codebases to discover LLM integration points and assess their security posture.
 
