@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "prompt-armor": {
+      "command": "npx",
+      "args": ["tsx", "${CLAUDE_PLUGIN_ROOT}/../server/src/index.ts"],
+      "description": "PromptArmor red teaming execution engine"
+    }
+  }
+}

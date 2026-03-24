@@ -1,0 +1,11 @@
+{
+  "name": "promptarmor-plugin",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PromptArmor — LLM security red teaming plugin + MCP server",
+  "author": "Shayaun Nejad",
+  "license": "MIT",
+  "workspaces": [
+    "server"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "name": "prompt-armor",
+  "version": "1.0.0",
+  "description": "LLM security red teaming — reads your code, tests your endpoints, fixes your vulnerabilities. 80+ attack plugins, 25+ mutation strategies, code-aware remediation.",
+  "author": {
+    "name": "Shayaun Nejad",
+    "url": "https://github.com/allsmog"
+  },
+  "license": "MIT",
+  "keywords": [
+    "security",
+    "red-team",
+    "prompt-injection",
+    "jailbreak",
+    "LLM",
+    "OWASP",
+    "AI-safety",
+    "pentest",
+    "compliance",
+    "MCP"
+  ]
+}
