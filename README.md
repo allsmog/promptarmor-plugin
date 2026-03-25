@@ -161,6 +161,30 @@ The MCP server is usable standalone by any MCP client (Claude Desktop, Cursor, e
 | `list_attacks` / `list_mutations` | Discovery |
 | `validate_config` | Config validation |
 
+## E2E Verified
+
+Tested against an intentionally vulnerable Node.js chat endpoint with keyword-triggered secret disclosure, system prompt leakage, and no input sanitization:
+
+```
+$ /prompt-armor:scan --target http://localhost:4010/api/chat
+
+.prompt-armor/recon/recon-2026-03-24.json    324 lines  (system prompts, tool schemas, guardrails, injection surfaces)
+.prompt-armor/state.json                     492 lines  (full scan state with per-test verdicts)
+
+Tests: 34 total across 10 categories
+  Passed: 31
+  Failed:  3 (high severity)
+
+By category:
+  jailbreak:   3/3 passed    injection:  3/4 (1 failed)
+  harmful:     3/3 passed    tool-abuse: 3/3 passed
+  bias:        3/3 passed    pii:        4/4 passed
+  compliance:  1/3 (2 failed) agentic:   3/3 passed
+  rag:         3/3 passed    other:      3/3 passed
+```
+
+Recon correctly identified the system prompt (`src/config.js:3`), tool schemas, hardcoded secrets, and all injection surfaces with file:line references.
+
 ## Development
 
 ```bash
