@@ -44,8 +44,8 @@ export async function judge(
     }
   }
 
-  // Fall back to pattern matching
-  if (indicators.length > 0) {
+  // Fall back to pattern matching (always run — universal indicators check even with empty attack-specific list)
+  {
     const { matched, indicator } = patternCheck(targetResponse, indicators);
     if (matched) {
       return {
