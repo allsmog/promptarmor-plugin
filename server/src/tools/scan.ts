@@ -96,6 +96,10 @@ export async function scan(
       const verdict = await judge(attack.prompt, response, attack.indicators, judgeOptions);
       const duration = performance.now() - attackStart;
 
+      // Flag for agent review: pattern said pass but confidence is low,
+      // or response is suspiciously long (may contain leaked data)
+      const needsReview = verdict.passed && (verdict.confidence <= 0.6 || response.length > 200);
+
       results.push({
         attackId: attack.plugin.id,
         category: attack.plugin.category,
@@ -108,6 +112,7 @@ export async function scan(
         reasoning: verdict.reasoning,
         evidence: verdict.evidence,
         duration,
+        needsReview,
       });
     })();
 
@@ -140,6 +145,7 @@ export async function scan(
     }
   }
 
+  const needingReview = results.filter(r => r.needsReview);
   const scanResult: ScanResult = {
     id: scanId,
     timestamp: new Date().toISOString(),
@@ -152,6 +158,10 @@ export async function scan(
       bySeverity,
       byCategory,
     },
+    reviewSummary: needingReview.length > 0 ? {
+      totalNeedingReview: needingReview.length,
+      reviewCategories: [...new Set(needingReview.map(r => r.category))],
+    } : undefined,
     duration: totalDuration,
   };
 

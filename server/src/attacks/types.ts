@@ -67,6 +67,8 @@ export interface AttackResult {
   evidence?: string;
   mutation?: string;
   duration: number;
+  /** True when pattern judge passed but confidence is low — agent should review */
+  needsReview?: boolean;
 }
 
 export interface ScanResult {
@@ -80,6 +82,11 @@ export interface ScanResult {
     failed: number;
     bySeverity: Record<Severity, number>;
     byCategory: Record<string, { passed: number; failed: number }>;
+  };
+  /** Count of results flagged for agent-level LLM review */
+  reviewSummary?: {
+    totalNeedingReview: number;
+    reviewCategories: string[];
   };
   duration: number;
 }
