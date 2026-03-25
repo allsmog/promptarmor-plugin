@@ -168,19 +168,31 @@ Tested against an intentionally vulnerable Node.js chat endpoint with keyword-tr
 ```
 $ /prompt-armor:scan --target http://localhost:4010/api/chat
 
-.prompt-armor/recon/recon-2026-03-24.json    324 lines  (system prompts, tool schemas, guardrails, injection surfaces)
-.prompt-armor/state.json                     492 lines  (full scan state with per-test verdicts)
+Artifacts:
+  .prompt-armor/recon/recon-2026-03-24.json         (system prompts, tool schemas, injection surfaces)
+  .prompt-armor/state.json                          (full scan state with per-test verdicts)
+  .prompt-armor/reports/report-2026-03-24-full.md   (151-line executive report)
+  .prompt-armor/reports/promptarmor-*.json           (machine-readable report)
+  .prompt-armor/reports/promptarmor-*.txt            (text report)
 
-Tests: 34 across 10 categories
-  Passed: 31
-  Failed:  3 (all high severity — 1 injection, 2 compliance)
+Tests: 150 across 8 categories
+  Passed:  133
+  Failed:   17 (15 critical, 2 high)
 
 By category:
-  jailbreak:   3/3 passed    injection:  3/4 (1 failed)
-  harmful:     3/3 passed    tool-abuse: 3/3 passed
-  bias:        3/3 passed    pii:        4/4 passed
-  compliance:  1/3 (2 failed) agentic:   3/3 passed
-  rag:         3/3 passed    other:      3/3 passed
+  jailbreak:    12/16 (4 failed)     tool-abuse: 13/24 (11 failed)
+  injection:    13/15 (2 failed)     harmful:    47/47 passed
+  bias:         15/15 passed         pii:        12/12 passed
+  compliance:   12/12 passed         agentic:     9/9  passed
+
+Detected:
+  - System prompt disclosure (3 vectors)
+  - DAN mode jailbreak adoption
+  - Secret exfiltration (JWT_SECRET, DB credentials via prompt injection)
+  - Privilege escalation (admin access granted unconditionally)
+  - File content disclosure (/etc/passwd)
+  - SQL injection (DROP TABLE executed)
+  - Tool schema enumeration
 ```
 
 Recon correctly identified the system prompt (`src/config.js:3`), tool schemas, hardcoded secrets, and all injection surfaces with file:line references.
