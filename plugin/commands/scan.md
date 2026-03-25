@@ -23,6 +23,22 @@ allowed-tools:
 
 Run a complete LLM security red team assessment. This is the flagship command that orchestrates the full pipeline.
 
+## Artifact Contract
+
+Every scan MUST produce these files in order. Each phase writes its artifact BEFORE the next phase starts.
+
+```
+.prompt-armor/
+  recon/recon-{date}.json         # Phase 2 output — WRITE FIRST
+  scans/scan-{id}.json            # Phase 4 output — raw MCP scan results
+  state.json                      # Phase 5 output — reviewed results
+  reports/report-{id}.md          # Phase 7 output — final report
+  reports/report-{id}.json        # Phase 7 output — machine-readable
+  reports/report-{id}.sarif       # Phase 7 output — SARIF for GitHub
+```
+
+**Persistence rule**: Write each artifact using Bash `mkdir -p .prompt-armor/{subdir} && cat > .prompt-armor/{subdir}/{file} << 'EOF'`. This is more reliable than the Write tool for dotfile paths.
+
 ## Pipeline
 
 ### Phase 1: Configuration
@@ -36,20 +52,19 @@ Launch the **recon-agent** to analyze the codebase:
 - Find system prompts, tool definitions, guardrails, provider config
 - Identify LLM integration patterns (OpenAI SDK, Anthropic SDK, LangChain, etc.)
 - Map data flows from user input to LLM calls
-- Save recon results to `.prompt-armor/recon/`
+- **IMMEDIATELY write** recon results to `.prompt-armor/recon/recon-{date}.json` before proceeding
 
 ### Phase 3: Attack Planning
-Launch the **attack-planner** agent with recon results:
+Launch the **attack-planner** agent with recon results **read from disk** (`.prompt-armor/recon/`):
 - Prioritize attack categories based on discovered attack surface
 - Select mutation strategies appropriate to the target
 - Estimate coverage across OWASP LLM Top 10
 
 ### Phase 4: Attack Execution
-Launch the **red-teamer** agent:
-- Execute planned attacks via MCP `run_attack_suite` tool
-- Apply mutation strategies to each attack
-- Judge responses via MCP `judge_response` tool (LLM-as-judge + pattern matching)
-- Save results incrementally via MCP `save_results` tool
+Use the MCP `prompt_armor_scan` tool to execute attacks:
+- The MCP server handles attack execution, pattern judging, and result persistence internally
+- Results are saved to `.prompt-armor/state.json` by the MCP server
+- **After the MCP scan returns**, copy the raw scan to `.prompt-armor/scans/scan-{id}.json`
 
 ### Phase 5: LLM Verdict Review (CRITICAL — Do Not Skip)
 
@@ -87,27 +102,24 @@ If there are more than 10 borderline results, dispatch the **judge-agent** to ba
 **Update the scan summary counts** after reclassification before proceeding.
 
 ### Phase 6: Remediation
-Launch the **remediation-agent**:
+Launch the **remediation-agent** reading from saved artifacts:
+- Read scan results from `.prompt-armor/scans/` or `.prompt-armor/state.json`
+- Read recon from `.prompt-armor/recon/`
 - For each failed test, generate code-specific fix suggestions
 - Reference actual file:line locations from recon phase
-- Suggest system prompt hardening, input validation, output filtering
+- **Write** remediation to `.prompt-armor/remediation.md`
 
-### Phase 7: Report
-- Call MCP `generate_report` with requested formats
-- Display summary in terminal: total/passed/failed, severity breakdown, top findings
-- Save reports to `.prompt-armor/reports/`
+### Phase 7: Report Generation (from saved artifacts only)
+**IMPORTANT**: Generate reports by reading the saved scan and recon artifacts from disk. Do NOT rebuild context from scratch or re-analyze the codebase.
 
-## Output
-
-Results are saved to `.prompt-armor/` in the project root:
-```
-.prompt-armor/
-  scans/scan-{timestamp}.json       # Full scan results
-  recon/recon-{timestamp}.json      # Code reconnaissance results
-  reports/report-{timestamp}.md     # Markdown report
-  reports/report-{timestamp}.json   # JSON report
-  reports/report-{timestamp}.sarif  # SARIF for GitHub Security
-```
+1. Read scan results from `.prompt-armor/state.json` or `.prompt-armor/scans/`
+2. Read recon from `.prompt-armor/recon/`
+3. Call MCP `generate_report` OR generate directly from the saved data
+4. **Write** reports to `.prompt-armor/reports/`:
+   - `report-{id}.md` — markdown report
+   - `report-{id}.json` — machine-readable
+   - `report-{id}.sarif` — SARIF for GitHub Security
+5. Display summary in conversation: total/passed/failed, severity breakdown, top findings
 
 ## Flags
 
