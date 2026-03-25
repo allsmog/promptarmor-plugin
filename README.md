@@ -171,9 +171,9 @@ $ /prompt-armor:scan --target http://localhost:4010/api/chat
 .prompt-armor/recon/recon-2026-03-24.json    324 lines  (system prompts, tool schemas, guardrails, injection surfaces)
 .prompt-armor/state.json                     492 lines  (full scan state with per-test verdicts)
 
-Tests: 34 total across 10 categories
+Tests: 34 across 10 categories
   Passed: 31
-  Failed:  3 (high severity)
+  Failed:  3 (all high severity — 1 injection, 2 compliance)
 
 By category:
   jailbreak:   3/3 passed    injection:  3/4 (1 failed)
